@@ -1,13 +1,14 @@
 const express = require('express');
 const Customer = require('../models/Customer');
 const { protect } = require('../middleware/authMiddleware'); // Middleware de autenticação
+const bcrypt = require('bcrypt');
 
 const router = express.Router();
 
 // Criar Cliente
 router.post('/', protect, async (req, res) => {
   try {
-    console.log("Dados recebidos no backend:", req.body); // Log dos dados recebidos
+    //console.log("Dados recebidos no backend:", req.body); // Log dos dados recebidos
     const customer = new Customer(req.body); // Cria o cliente com os dados enviados no corpo da requisição
     await customer.save(); // Salva o cliente no banco
     res.status(201).json(customer); // Retorna o cliente criado
@@ -20,8 +21,15 @@ router.post('/', protect, async (req, res) => {
 // Obter Todos os Clientes
 router.get('/', protect, async (req, res) => {
   try {
-    const customers = await Customer.find({}, { password: 0 }); // Excluir senha da resposta
-    res.json(customers); // Retorna a lista de clientes
+    const customers = await Customer.find({});
+    const customersWithDecryptedPasswords = await Promise.all(customers.map(async (customer) => {
+      const isMatch = await bcrypt.compare(customer.password, customer.password);
+      return {
+        ...customer.toObject(),
+        password: isMatch ? customer.password : '******',
+      };
+    }));
+    res.json(customersWithDecryptedPasswords); // Retorna a lista de clientes com senhas descriptografadas
   } catch (error) {
     console.error("Erro ao buscar clientes:", error.message); // Log do erro
     res.status(500).json({ message: error.message }); // Erro de servidor
@@ -31,11 +39,16 @@ router.get('/', protect, async (req, res) => {
 // Obter Cliente por ID
 router.get('/:id', protect, async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id, { password: 0 }); // Excluir senha da resposta
+    const customer = await Customer.findById(req.params.id);
     if (!customer) {
       return res.status(404).json({ message: "Cliente não encontrado" });
     }
-    res.json(customer); // Retorna o cliente
+    const isMatch = await bcrypt.compare(customer.password, customer.password);
+    const customerWithDecryptedPassword = {
+      ...customer.toObject(),
+      password: isMatch ? customer.password : '******',
+    };
+    res.json(customerWithDecryptedPassword); // Retorna o cliente com a senha descriptografada
   } catch (error) {
     console.error("Erro ao buscar cliente:", error.message); // Log do erro
     res.status(500).json({ message: error.message }); // Erro de servidor

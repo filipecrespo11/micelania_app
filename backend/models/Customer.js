@@ -10,12 +10,13 @@ const customerSchema = new mongoose.Schema({
   returnDate: { type: Date, required: true },
   password: { type: String, required: true },
   observation: { type: String, required: true },
-  signature: { type: String, required: true }, // Armazena a assinatura atual em Base64
+  signature: { type: String }, // Armazena a assinatura atual em Base64
   purchaseHistory: [
     {
+      observation: { type: String},
       purchaseDate: { type: Date },
       returnDate: { type: Date },
-      signature: { type: String, required: true },
+      signature: { type: String },
     },
   ], // Histórico de compras e devoluções
 });

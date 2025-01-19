@@ -81,6 +81,7 @@ const CustomerList = () => {
                   <img
                     src={customer.signature}
                     alt={`Assinatura de ${customer.name}`}
+                    style={{ border: "1px solid #000", width: "300px", height: "100px" }}
                   />
                 </div>
               ) : (
@@ -95,6 +96,7 @@ const CustomerList = () => {
                   <ul>
                     {customer.purchaseHistory.map((history, index) => (
                       <li key={index}>
+                        <p>Obs: {history.observation}</p>
                         <p>Data da Compra: {history.purchaseDate}</p>
                         <p>Data de Devolução: {history.returnDate}</p>
                         {history.signature && (
@@ -103,6 +105,7 @@ const CustomerList = () => {
                             <img
                               src={history.signature}
                               alt={`Assinatura de ${customer.name}`}
+                              style={{ border: "1px solid #000", width: "300px", height: "100px" }}
                             />
                           </div>
                         )}
