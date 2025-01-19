@@ -23,7 +23,56 @@ router.get('/', protect, async (req, res) => {
     const customers = await Customer.find({}, { password: 0 }); // Excluir senha da resposta
     res.json(customers); // Retorna a lista de clientes
   } catch (error) {
-    res.status(500).json({ message: error.message }); // Erro no servidor
+    console.error("Erro ao buscar clientes:", error.message); // Log do erro
+    res.status(500).json({ message: error.message }); // Erro de servidor
+  }
+});
+
+// Obter Cliente por ID
+router.get('/:id', protect, async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id, { password: 0 }); // Excluir senha da resposta
+    if (!customer) {
+      return res.status(404).json({ message: "Cliente não encontrado" });
+    }
+    res.json(customer); // Retorna o cliente
+  } catch (error) {
+    console.error("Erro ao buscar cliente:", error.message); // Log do erro
+    res.status(500).json({ message: error.message }); // Erro de servidor
+  }
+});
+
+// Atualizar Cliente
+router.put('/:id', protect, async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id);
+    if (!customer) {
+      return res.status(404).json({ message: "Cliente não encontrado" });
+    }
+
+    // Adicionar a data de compra e devolução antiga ao histórico
+    customer.purchaseHistory.push({
+      purchaseDate: customer.purchaseDate,
+      returnDate: customer.returnDate,
+      observation: customer.observation,
+      signature: customer.signature,
+    });
+
+    // Atualizar os campos do cliente
+    customer.name = req.body.name || customer.name;
+    customer.email = req.body.email || customer.email;
+    customer.phone = req.body.phone || customer.phone;
+    customer.cpf = req.body.cpf || customer.cpf;
+    customer.purchaseDate = req.body.purchaseDate || customer.purchaseDate;
+    customer.returnDate = req.body.returnDate || customer.returnDate;
+    customer.observation = req.body.observation || customer.observation;
+    customer.signature = req.body.signature || customer.signature;
+
+    await customer.save(); // Salva o cliente atualizado no banco
+    res.json(customer); // Retorna o cliente atualizado
+  } catch (error) {
+    console.error("Erro ao atualizar cliente:", error.message); // Log do erro
+    res.status(400).json({ message: error.message }); // Erro de validação
   }
 });
 

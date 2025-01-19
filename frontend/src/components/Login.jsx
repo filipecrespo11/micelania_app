@@ -24,9 +24,7 @@ const Login = () => {
         const data = await response.json();
         localStorage.setItem("token", data.token); // Salvar token no localStorage
         alert("Login bem-sucedido!");
-        //navigate("/customer-management"); // Redirecionar para a página de gerenciamento de clientes
-        navigate("/customers");
-
+        navigate("/customer-management"); // Redirecionar para a página de gerenciamento de clientes
       } else {
         alert("Login falhou. Verifique suas credenciais.");
       }
