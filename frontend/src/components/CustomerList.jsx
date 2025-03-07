@@ -6,6 +6,8 @@ import "./CustomerList.css";
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState(""); // Data inicial do período
+  const [endDate, setEndDate] = useState(""); // Data final do período
   const [showPassword, setShowPassword] = useState({});
   const [showHistory, setShowHistory] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
@@ -16,7 +18,13 @@ const CustomerList = () => {
         const response = await axios.get("https://micelania-app.onrender.com/customers", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        setCustomers(response.data);
+        const customerData = response.data;
+        const initialShowPassword = customerData.reduce((acc, customer) => {
+          acc[customer._id] = false;
+          return acc;
+        }, {});
+        setShowPassword(initialShowPassword);
+        setCustomers(customerData);
       } catch (error) {
         console.error("Erro ao buscar clientes:", error);
         setErrorMessage("Erro ao carregar a lista de clientes.");
@@ -28,6 +36,14 @@ const CustomerList = () => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
   };
 
   const toggleShowPassword = (id) => {
@@ -48,22 +64,66 @@ const CustomerList = () => {
     return dateString ? new Date(dateString).toLocaleDateString("pt-BR") : "Não definida";
   };
 
-  const filteredCustomers = customers.filter((customer) =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.cpf.includes(searchTerm)
-  );
+  // Filtragem por nome/CPF e por período de data de compra
+  const filteredCustomers = customers.filter((customer) => {
+    // Filtro por nome ou CPF
+    const matchesSearch =
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.cpf.includes(searchTerm);
+
+    // Filtro por período de data
+    const purchaseDate = new Date(customer.purchaseDate);
+    let matchesDate = true;
+
+    if (startDate) {
+      const start = new Date(startDate);
+      matchesDate = matchesDate && purchaseDate >= start;
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      // Ajusta a data final para incluir o dia inteiro
+      end.setHours(23, 59, 59, 999);
+      matchesDate = matchesDate && purchaseDate <= end;
+    }
+
+    return matchesSearch && matchesDate;
+  });
 
   return (
     <div className="customer-list-container">
       {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
       <h1>Lista de Clientes</h1>
       <Link to="/customer-management">Voltar ao Gerenciamento de Clientes</Link>
-      <input
-        type="text"
-        placeholder="Pesquisar por nome ou CPF"
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
+      <div style={{ marginBottom: "20px" }}>
+        <input
+          type="text"
+          placeholder="Pesquisar por nome ou CPF"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          style={{ width: "100%", padding: "10px" }}
+        />
+        <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+          <div>
+            <label>Data Inicial: </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              style={{ padding: "5px" }}
+            />
+          </div>
+          <div>
+            <label>Data Final: </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={handleEndDateChange}
+              style={{ padding: "5px" }}
+            />
+          </div>
+        </div>
+      </div>
       {filteredCustomers.length === 0 ? (
         <p>Nenhum cliente encontrado.</p>
       ) : (
@@ -76,7 +136,7 @@ const CustomerList = () => {
               <p>Devolução do cartão: {formatDate(customer.returnDate)}</p>
               <p>
                 Senha do Cartão:{" "}
-                {showPassword[customer._id] ? customer.password : "******"}
+                {showPassword[customer._id] && customer.password ? customer.password : "******"}
                 <button onClick={() => toggleShowPassword(customer._id)}>
                   {showPassword[customer._id] ? "Ocultar" : "Mostrar"}
                 </button>
@@ -130,6 +190,7 @@ const CustomerList = () => {
           ))}
         </ul>
       )}
+      <Link to="/customers">Ver Lista de Clientes</Link>
     </div>
   );
 };
