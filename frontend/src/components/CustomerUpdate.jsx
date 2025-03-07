@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
@@ -22,10 +22,15 @@ const CustomerUpdate = () => {
   useEffect(() => {
     const fetchCustomer = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/customers/${id}`, {
+        const response = await axios.get(`https://micelania-app.onrender.com/customers/${id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        setCustomer(response.data);
+        const data = response.data;
+        setCustomer({
+          ...data,
+          purchaseDate: data.purchaseDate ? data.purchaseDate.split("T")[0] : "",
+          returnDate: data.returnDate ? data.returnDate.split("T")[0] : "",
+        });
       } catch (error) {
         console.error("Erro ao buscar cliente:", error);
       }
@@ -42,12 +47,17 @@ const CustomerUpdate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (signatureRef.current.isEmpty() && !customer.signature) {
+      setErrorMessage("A assinatura é obrigatória.");
+      return;
+    }
+
     const signatureImage = signatureRef.current.isEmpty()
       ? customer.signature
       : signatureRef.current.toDataURL();
 
     try {
-      await axios.put(`http://localhost:5000/customers/${id}`, {
+      await axios.put(`https://micelania-app.onrender.com/customers/${id}`, {
         ...customer,
         signature: signatureImage,
       }, {
@@ -83,7 +93,6 @@ const CustomerUpdate = () => {
             name="email"
             value={customer.email}
             onChange={handleChange}
-            
           />
         </div>
         <div>
@@ -139,13 +148,10 @@ const CustomerUpdate = () => {
             ref={signatureRef}
             penColor="black"
             canvasProps={{ width: 500, height: 200, className: "signatureCanvas" }}
-            required
           />
-          
           <button type="button" onClick={() => signatureRef.current.clear()}>
             Limpar Assinatura
           </button>
-        
         </div>
         <button type="submit">Atualizar Cliente</button>
       </form>

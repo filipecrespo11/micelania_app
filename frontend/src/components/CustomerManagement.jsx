@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { cpf as cpfValidator } from "cpf-cnpj-validator"; // Biblioteca para validação de CPF
 import axios from "axios";
 import SignatureCanvas from "react-signature-canvas";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const CustomerManagement = () => {
   const [newCustomer, setNewCustomer] = useState({
@@ -19,7 +19,7 @@ const CustomerManagement = () => {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const signatureRef = useRef(null);
-  const navigate = useNavigate();
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,7 +46,7 @@ const CustomerManagement = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/customers",
+        "https://micelania-app.onrender.com/customers",
         customerData,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );

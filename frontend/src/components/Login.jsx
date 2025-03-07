@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css"; // Importa o arquivo CSS
 
@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
+      const response = await fetch("https://micelania-app.onrender.com/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
