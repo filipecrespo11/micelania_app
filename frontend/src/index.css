@@ -66,4 +66,16 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+.login-form {
+background: center;
+width: 500px;
+margin: 0 auto;
+padding: 100px;
+border-radius: 8px;
+
+}
+
+
+}
+
 }

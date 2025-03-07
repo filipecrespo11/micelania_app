@@ -135,10 +135,9 @@ const CustomerList = () => {
               <p>Data da Compra: {formatDate(customer.purchaseDate)}</p>
               <p>Devolução do cartão: {formatDate(customer.returnDate)}</p>
               <p>
-                Senha do Cartão:{" "}
-                {showPassword[customer._id] && customer.password ? customer.password : "******"}
-                <button onClick={() => toggleShowPassword(customer._id)}>
-                  {showPassword[customer._id] ? "Ocultar" : "Mostrar"}
+              Senha do Cartão: {showPassword[customer._id] ? customer.password : "******"}
+               <button onClick={() => toggleShowPassword(customer._id)}>
+                {showPassword[customer._id] ? "Ocultar" : "Mostrar"}
                 </button>
               </p>
               <p>Obs: {customer.observation}</p>

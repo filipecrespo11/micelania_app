@@ -13,15 +13,7 @@ h1, h2 {
   text-align: center;
 }
 
-.login-container, .form-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  align-items: center;
-  
-}
+
 
 form input {
   width: 100%;

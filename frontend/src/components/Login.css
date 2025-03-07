@@ -9,7 +9,7 @@
 
 
   .login-container, .register-container {
-    max-width: 400px;
+    max-width: 1000px;
     margin: 50px auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -44,6 +44,7 @@
     color: #fff;
     border: none;
     border-radius: 5px;
+    width: auto;
   }
   
   button:hover {

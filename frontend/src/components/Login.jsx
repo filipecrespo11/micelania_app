@@ -64,10 +64,11 @@ const Login = () => {
           />
         </div>
         <button type="submit">Login</button>
-      </form>
+      
       <button onClick={handleRegisterRedirect} className="register-btn">
         Criar Conta
       </button>
+      </form>
     </div>
   );
 };
